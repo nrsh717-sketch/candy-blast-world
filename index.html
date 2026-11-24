@@ -1,1 +1,117 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candy Blast World</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#38116b,#a52c91);
+ color:white;text-align:center;
+}
+header{padding:20px}
+h1{color:#ffe66d;font-size:30px}
+.stats{display:flex;justify-content:center;gap:25px;margin:15px}
+.panel{background:#ffffff22;padding:12px;border-radius:15px}
+#board{
+ display:grid;
+ grid-template-columns:repeat(8,1fr);
+ gap:5px;width:min(94vw,410px);
+ margin:20px auto;padding:10px;
+ background:#ffffff25;border-radius:18px;
+}
+.cell{
+ aspect-ratio:1;border:0;border-radius:12px;
+ font-size:clamp(20px,7vw,34px);
+ background:#ffffff30;cursor:pointer;
+}
+.selected{outline:3px solid yellow}
+button.play{
+ background:#ffe66d;color:#42105f;
+ border:0;padding:14px 30px;border-radius:25px;
+ font-size:18px;font-weight:bold;cursor:pointer;
+}
+</style>
+</head>
+<body>
+<header>
+<h1>🍬 Candy Blast World 🍭</h1>
+<p>Match 3 candies and win!</p>
+</header>
+<div class="stats">
+<div class="panel">⭐ Score<br><b id="score">0</b></div>
+<div class="panel">🎯 Target<br><b>500</b></div>
+<div class="panel">❤️ Moves<br><b id="moves">30</b></div>
+</div>
+<div id="board"></div>
+<button class="play" onclick="startGame()">🔄 Restart Game</button>
+<p id="message">Tap two nearby candies to swap!</p>
+<script>
+const candies=["🍬","🍭","🍫","🍒","🍓","🍋"];
+let cells=[],selected=null,score=0,moves=30;
+const board=document.getElementById("board");
+function randomCandy(){return candies[Math.floor(Math.random()*candies.length)]}
+function startGame(){
+ score=0;moves=30;selected=null;
+ cells=Array.from({length:64},randomCandy);
+ document.getElementById("message").textContent="Match 3 candies!";
+ update();render();
+}
+function render(){
+ board.innerHTML="";
+ cells.forEach((c,i)=>{
+ let b=document.createElement("button");
+ b.className="cell"+(selected===i?" selected":"");
+ b.textContent=c;
+ b.onclick=()=>tap(i);
+ board.appendChild(b);
+ });
+}
+function update(){
+ document.getElementById("score").textContent=score;
+ document.getElementById("moves").textContent=moves;
+}
+function tap(i){
+ if(moves<=0)return;
+ if(selected===null){selected=i;render();return}
+ let a=selected,b=i;selected=null;
+ if(a===b){render();return}
+ let adjacent=Math.abs(a-b)===1 || Math.abs(a-b)===8;
+ if(!adjacent){selected=b;render();return}
+ [cells[a],cells[b]]=[cells[b],cells[a]];
+ let matches=findMatches();
+ if(matches.length>=3){
+ score+=matches.length*10;
+ matches.forEach(i=>cells[i]=randomCandy());
+ moves--;
+ document.getElementById("message").textContent="Great match! 🎉";
+ }else{
+ [cells[a],cells[b]]=[cells[b],cells[a]];
+ document.getElementById("message").textContent="Try another match!";
+ }
+ update();render();
+ if(score>=500)document.getElementById("message").textContent="🏆 You Win!";
+ if(moves===0 && score<500)document.getElementById("message").textContent="Game Over! Try Again.";
+}
+function findMatches(){
+ let found=new Set();
+ for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+ let i=r*8+c;
+ if(c<=5 && cells[i]===cells[i+1]&&cells[i]===cells[i+2]){
+ found.add(i);found.add(i+1);found.add(i+2);
+ }
+ if(r<=5 && cells[i]===cells[i+8]&&cells[i]===cells[i+16]){
+ found.add(i);found.add(i+8);found.add(i+16);
+ }
+ }
+ return [...found];
+}
+startGame();
+</script>
+</body>
+</html>
