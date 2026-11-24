@@ -1,115 +1,136 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Candy Blast World</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,sans-serif;
- background:linear-gradient(135deg,#38116b,#a52c91);
- color:white;text-align:center;
-}
-header{padding:20px}
-h1{color:#ffe66d;font-size:30px}
-.stats{display:flex;justify-content:center;gap:25px;margin:15px}
-.panel{background:#ffffff22;padding:12px;border-radius:15px}
-#board{
- display:grid;
- grid-template-columns:repeat(8,1fr);
- gap:5px;width:min(94vw,410px);
- margin:20px auto;padding:10px;
- background:#ffffff25;border-radius:18px;
-}
-.cell{
- aspect-ratio:1;border:0;border-radius:12px;
- font-size:clamp(20px,7vw,34px);
- background:#ffffff30;cursor:pointer;
-}
-.selected{outline:3px solid yellow}
-button.play{
- background:#ffe66d;color:#42105f;
- border:0;padding:14px 30px;border-radius:25px;
- font-size:18px;font-weight:bold;cursor:pointer;
-}
+body{margin:0;min-height:100vh;text-align:center;color:white;font-family:Arial;background:linear-gradient(145deg,#230c55,#7926a4,#e044a5)}
+h1{color:#ffe66d;font-size:28px}
+header{padding:15px 8px 5px}
+.stats{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:15px auto}
+.stat{background:#ffffff24;border-radius:13px;padding:10px;min-width:75px;font-size:13px}
+.stat b{display:block;font-size:20px;color:#ffe66d;margin-top:5px}
+.game{width:min(94vw,440px);margin:auto;padding:12px;background:#ffffff20;border-radius:22px}
+#board{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;padding:8px;background:#250b4c;border-radius:15px}
+.cell{border:0;border-radius:10px;aspect-ratio:1;font-size:clamp(20px,7vw,34px);background:#ffffff25;cursor:pointer;padding:0}
+.cell.selected{outline:3px solid #ffe66d;transform:scale(.9)}
+.action{border:0;border-radius:25px;padding:12px 20px;font-weight:bold;background:#ffe66d;color:#42105f;cursor:pointer;margin:8px}
+#message{font-weight:bold;min-height:24px}
 </style>
 </head>
 <body>
 <header>
 <h1>🍬 Candy Blast World 🍭</h1>
-<p>Match 3 candies and win!</p>
+<p>Match candies • Win coins • 100 Levels!</p>
 </header>
 <div class="stats">
-<div class="panel">⭐ Score<br><b id="score">0</b></div>
-<div class="panel">🎯 Target<br><b>500</b></div>
-<div class="panel">❤️ Moves<br><b id="moves">30</b></div>
+<div class="stat">⭐ SCORE<b id="score">0</b></div>
+<div class="stat">🎯 TARGET<b id="target">500</b></div>
+<div class="stat">❤️ MOVES<b id="moves">30</b></div>
+<div class="stat">🪙 COINS<b id="coins">0</b></div>
 </div>
+<div class="game">
+<h3 id="level">LEVEL 1</h3>
 <div id="board"></div>
-<button class="play" onclick="startGame()">🔄 Restart Game</button>
-<p id="message">Tap two nearby candies to swap!</p>
+<p id="message">Match 3 or more candies!</p>
+<p>Tap two neighboring candies to swap.</p>
+</div>
+<button class="action" onclick="startGame()">🔄 Restart</button>
+<button class="action" onclick="toggleSound()" id="soundBtn">🔊 Sound ON</button>
 <script>
-const candies=["🍬","🍭","🍫","🍒","🍓","🍋"];
-let cells=[],selected=null,score=0,moves=30;
-const board=document.getElementById("board");
-function randomCandy(){return candies[Math.floor(Math.random()*candies.length)]}
-function startGame(){
- score=0;moves=30;selected=null;
- cells=Array.from({length:64},randomCandy);
- document.getElementById("message").textContent="Match 3 candies!";
- update();render();
+const candy=["🍬","🍭","🍫","🍒","🍓","🍋"];
+let cells=[],selected=null,score=0,moves=30,level=1,coins=0,sound=true;
+const $=id=>document.getElementById(id);
+const board=$("board");
+function randomCandy(){return candy[Math.floor(Math.random()*candy.length)]}
+function target(){return 500+(level-1)*200}
+function playSound(){
+ if(!sound)return;
+ try{
+ const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();
+ o.connect(g);g.connect(a.destination);o.frequency.value=600;
+ g.gain.value=.04;o.start();o.stop(a.currentTime+.12);
+ }catch(e){}
+}
+function toggleSound(){
+ sound=!sound;
+ $("soundBtn").textContent=sound?"🔊 Sound ON":"🔇 Sound OFF";
+}
+function makeBoard(){
+ cells=[];
+ for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+ let x;
+ do{x=randomCandy()}
+ while((c>=2&&cells[r*8+c-1]===x&&cells[r*8+c-2]===x)||(r>=2&&cells[(r-1)*8+c]===x&&cells[(r-2)*8+c]===x));
+ cells.push(x);
+ }
 }
 function render(){
  board.innerHTML="";
- cells.forEach((c,i)=>{
+ cells.forEach((v,i)=>{
  let b=document.createElement("button");
  b.className="cell"+(selected===i?" selected":"");
- b.textContent=c;
- b.onclick=()=>tap(i);
- board.appendChild(b);
+ b.textContent=v;b.onclick=()=>tap(i);board.appendChild(b);
  });
 }
 function update(){
- document.getElementById("score").textContent=score;
- document.getElementById("moves").textContent=moves;
+ $("score").textContent=score;
+ $("target").textContent=target();
+ $("moves").textContent=moves;
+ $("coins").textContent=coins;
+ $("level").textContent="LEVEL "+level+" / 100";
+}
+function findMatches(){
+ let found=new Set();
+ for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+ let i=r*8+c;
+ if(c<6&&cells[i]===cells[i+1]&&cells[i]===cells[i+2]){
+ found.add(i);found.add(i+1);found.add(i+2);
+ }
+ if(r<6&&cells[i]===cells[i+8]&&cells[i]===cells[i+16]){
+ found.add(i);found.add(i+8);found.add(i+16);
+ }
+ }
+ return [...found];
 }
 function tap(i){
  if(moves<=0)return;
  if(selected===null){selected=i;render();return}
  let a=selected,b=i;selected=null;
  if(a===b){render();return}
- let adjacent=Math.abs(a-b)===1 || Math.abs(a-b)===8;
+ let adjacent=(Math.abs(a-b)===1&&Math.floor(a/8)===Math.floor(b/8))||Math.abs(a-b)===8;
  if(!adjacent){selected=b;render();return}
  [cells[a],cells[b]]=[cells[b],cells[a]];
- let matches=findMatches();
- if(matches.length>=3){
- score+=matches.length*10;
- matches.forEach(i=>cells[i]=randomCandy());
- moves--;
- document.getElementById("message").textContent="Great match! 🎉";
- }else{
+ let m=findMatches();
+ if(!m.length){
  [cells[a],cells[b]]=[cells[b],cells[a]];
- document.getElementById("message").textContent="Try another match!";
+ $("message").textContent="No match! Try again.";
+ }else{
+ moves--;score+=m.length*10;coins+=m.length;
+ m.forEach(x=>cells[x]=randomCandy());
+ $("message").textContent="Great match! 🎉";
+ playSound();
+ if(score>=target()){
+ if(level<100){
+ level++;coins+=50;moves=30;score=0;
+ $("message").textContent="🏆 Level Complete! +50 Coins";
+ }else{
+ $("message").textContent="👑 You completed all 100 levels!";
+ moves=0;
+ }
+ }
  }
  update();render();
- if(score>=500)document.getElementById("message").textContent="🏆 You Win!";
- if(moves===0 && score<500)document.getElementById("message").textContent="Game Over! Try Again.";
+ if(moves===0&&level<100&&score<target()){
+ $("message").textContent="Game Over! Press Restart.";
+ }
 }
-function findMatches(){
- let found=new Set();
- for(let r=0;r<8;r++)for(let c=0;c<8;c++){
- let i=r*8+c;
- if(c<=5 && cells[i]===cells[i+1]&&cells[i]===cells[i+2]){
- found.add(i);found.add(i+1);found.add(i+2);
- }
- if(r<=5 && cells[i]===cells[i+8]&&cells[i]===cells[i+16]){
- found.add(i);found.add(i+8);found.add(i+16);
- }
- }
- return [...found];
+function startGame(){
+ selected=null;score=0;moves=30;makeBoard();update();render();
+ $("message").textContent="Match 3 candies to score!";
 }
 startGame();
 </script>
