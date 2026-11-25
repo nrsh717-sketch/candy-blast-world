@@ -4,244 +4,644 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Candy Blast World</title>
+<meta name="theme-color" content="#35105d">
+<title>Candy Blast World - Global Edition</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(145deg,#39105d,#a32991,#ff6b9c);color:white;text-align:center;min-height:100vh;padding:16px}
-h1{font-size:30px;text-shadow:0 3px 8px #390044;margin:12px}
-.panel{max-width:430px;margin:12px auto;background:#ffffff20;padding:14px;border-radius:20px;box-shadow:0 8px 25px #24002b55}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{background:#ffffff25;border-radius:12px;padding:10px;font-weight:bold}
-.stat span{display:block;font-size:22px;margin-top:5px}
-#board{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:390px;margin:16px auto;background:#ffffff35;padding:7px;border-radius:14px}
-.candy{aspect-ratio:1;border:0;border-radius:10px;background:#ffffff30;font-size:clamp(23px,7vw,34px);cursor:pointer;transition:transform .15s,background .15s;touch-action:manipulation}
+
+body{
+ margin:0;
+ min-height:100vh;
+ padding:14px;
+ font-family:Arial,sans-serif;
+ color:white;
+ text-align:center;
+ background:radial-gradient(circle at top,#ff8acb,#9226a5 45%,#230744);
+}
+
+h1{
+ font-size:clamp(25px,7vw,36px);
+ margin:12px 0 5px;
+ text-shadow:0 4px 8px #390044;
+}
+
+.subtitle{
+ color:#ffe6fa;
+ font-size:13px;
+ margin-bottom:14px;
+}
+
+.panel{
+ max-width:450px;
+ margin:auto;
+ padding:15px;
+ border:2px solid #ffffff55;
+ border-radius:25px;
+ background:linear-gradient(145deg,#ffffff30,#ffffff10);
+ box-shadow:0 12px 35px #18002e88;
+}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px;
+}
+
+.stat{
+ padding:10px 4px;
+ border-radius:13px;
+ background:linear-gradient(145deg,#ffffff40,#ffffff12);
+ box-shadow:inset 0 2px 5px #ffffff30;
+ font-size:11px;
+ font-weight:bold;
+}
+
+.stat span{
+ display:block;
+ font-size:22px;
+ margin-top:5px;
+ color:#fff49b;
+}
+
+#board{
+ display:grid;
+ grid-template-columns:repeat(8,1fr);
+ gap:5px;
+ width:100%;
+ max-width:390px;
+ margin:17px auto;
+ padding:8px;
+ border-radius:17px;
+ background:linear-gradient(145deg,#58136e,#a82a9a);
+ box-shadow:inset 0 4px 12px #21002c,0 5px 15px #25002e77;
+ touch-action:none;
+}
+
+.candy{
+ width:100%;
+ aspect-ratio:1;
+ padding:0;
+ border:1px solid #ffffff50;
+ border-radius:11px;
+ font-size:clamp(20px,6vw,33px);
+ cursor:pointer;
+ background:linear-gradient(145deg,#ffffff45,#ffffff10);
+ box-shadow:inset 0 3px 5px #ffffff55,
+ 0 4px 4px #22002e88;
+ text-shadow:0 3px 4px #30002d88;
+ transition:transform .15s;
+}
+
 .candy:active{transform:scale(.85)}
-.selected{background:#ffe45e!important;transform:scale(1.1);box-shadow:0 0 12px white}
+
+.selected{
+ background:linear-gradient(145deg,#fff47c,#ffb72e)!important;
+ transform:scale(1.08);
+ box-shadow:0 0 15px #fff!important;
+}
+
 .pop{animation:pop .25s ease}
-@keyframes pop{50%{transform:scale(1.3);opacity:.4}}
-button.action{background:#ffdf48;color:#4d155d;border:0;border-radius:12px;padding:12px 16px;font-weight:bold;margin:5px;cursor:pointer}
-button:disabled{opacity:.45}
-#message{min-height:28px;font-weight:bold;color:#fff4a0}
-small{opacity:.9}
+
+@keyframes pop{
+ 50%{transform:scale(1.4);opacity:.2}
+}
+
+#message{
+ min-height:38px;
+ padding:8px;
+ color:#fff6a0;
+ font-weight:bold;
+}
+
+.actions{
+ display:flex;
+ justify-content:center;
+ flex-wrap:wrap;
+ gap:7px;
+}
+
+.action{
+ border:0;
+ border-radius:13px;
+ padding:12px 14px;
+ font-weight:bold;
+ color:#4c155e;
+ background:linear-gradient(145deg,#fff27b,#ffb72e);
+ box-shadow:0 4px 0 #b86c12;
+ cursor:pointer;
+}
+
+.action:active{transform:translateY(3px);box-shadow:none}
+
+.footer{
+ margin-top:16px;
+ font-size:12px;
+ color:#ffe8fa;
+}
+
+#overlay{
+ display:none;
+ position:fixed;
+ inset:0;
+ z-index:10;
+ background:#18002de8;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+}
+
+.popup{
+ width:100%;
+ max-width:340px;
+ padding:25px;
+ border-radius:24px;
+ background:linear-gradient(145deg,#a72eaa,#501078);
+ box-shadow:0 10px 40px #0008;
+}
+
+.popup h2{font-size:27px}
+.popup p{line-height:1.6}
+
 </style>
 </head>
+
 <body>
+
 <h1>🍬 CANDY BLAST WORLD 🍭</h1>
+<div class="subtitle">🌍 GLOBAL EDITION • PLAY & WIN</div>
+
 <div class="panel">
-<div class="stats">
-<div class="stat">LEVEL<span id="level">1</span></div>
-<div class="stat">SCORE<span id="score">0</span></div>
-<div class="stat">MOVES<span id="moves">30</span></div>
-<div class="stat">TARGET<span id="target">500</span></div>
-<div class="stat">COINS<span id="coins">0</span></div>
-<div class="stat">BEST<span id="best">0</span></div>
+
+ <div class="stats">
+  <div class="stat">LEVEL<span id="level">1</span></div>
+  <div class="stat">SCORE<span id="score">0</span></div>
+  <div class="stat">MOVES<span id="moves">30</span></div>
+  <div class="stat">TARGET<span id="target">500</span></div>
+  <div class="stat">COINS<span id="coins">0</span></div>
+  <div class="stat">BEST<span id="best">0</span></div>
+ </div>
+
+ <div id="board"></div>
+
+ <div id="message">🍬 Match 3 or more candies!</div>
+
+ <div class="actions">
+  <button class="action" onclick="restart()">🔄 Restart</button>
+  <button class="action" onclick="toggleSound()">🔊 Sound ON</button>
+  <button class="action" onclick="hint()">💡 Hint</button>
+  <button class="action" onclick="useBooster()">💥 Booster (20)</button>
+ </div>
+
+ <div class="footer">
+  ✨ 100 Levels • Candy Kingdom • Endless Fun ✨
+  <br><br>
+  © 2026 Candy Blast World
+ </div>
+
 </div>
-<div id="board"></div>
-<div id="message">Match 3 or more candies!</div>
-<button class="action" onclick="restart()">🔄 Restart</button>
-<button class="action" onclick="soundOn=!soundOn;this.textContent=soundOn?'🔊 Sound ON':'🔇 Sound OFF'">🔊 Sound ON</button>
-<button class="action" onclick="hint()">💡 Hint</button>
-<button class="action" onclick="useBooster()">💥 Booster (20 coins)</button>
-<small>Match candies • Earn coins • Complete 100 levels!</small>
+
+<div id="overlay">
+ <div class="popup">
+  <h2 id="popupTitle">🎉 LEVEL COMPLETE!</h2>
+  <p id="popupText">Amazing! You completed the level.</p>
+  <button class="action" id="popupButton" onclick="nextLevel()">NEXT LEVEL ➜</button>
+ </div>
 </div>
+
 <script>
+
 const emojis=["🍬","🍭","🍫","🍩","🍓","🍇"];
 const size=8;
-let board=[],score=0,moves=30,level=1,coins=0,best=0;
-let selected=-1,busy=false,soundOn=true,gameOver=false;
+
+let board=[];
+let score=0;
+let moves=30;
+let level=1;
+let coins=0;
+let best=0;
 let target=500;
+let selected=-1;
+let busy=false;
+let soundOn=true;
+let gameOver=false;
 let audio=null;
+let suppressClick=false;
 
 try{
-level=Number(localStorage.cbLevel)||1;
-coins=Number(localStorage.cbCoins)||0;
-best=Number(localStorage.cbBest)||0;
+ level=Math.min(100,Math.max(1,Number(localStorage.cbLevel)||1));
+ coins=Number(localStorage.cbCoins)||0;
+ best=Number(localStorage.cbBest)||0;
 }catch(e){}
 
 function save(){
-try{
-localStorage.cbLevel=level;
-localStorage.cbCoins=coins;
-localStorage.cbBest=best;
-}catch(e){}
+ try{
+  localStorage.cbLevel=level;
+  localStorage.cbCoins=coins;
+  localStorage.cbBest=best;
+ }catch(e){}
 }
 
-function beep(freq=500){
-if(!soundOn)return;
-try{
-audio=audio||new(window.AudioContext||window.webkitAudioContext)();
-let o=audio.createOscillator(),g=audio.createGain();
-o.frequency.value=freq;g.gain.value=.06;
-o.connect(g);g.connect(audio.destination);
-o.start();o.stop(audio.currentTime+.12);
-}catch(e){}
+function beep(freq=550){
+ if(!soundOn)return;
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==="suspended")audio.resume();
+  let o=audio.createOscillator();
+  let g=audio.createGain();
+  o.frequency.value=freq;
+  g.gain.value=.05;
+  o.connect(g);
+  g.connect(audio.destination);
+  o.start();
+  o.stop(audio.currentTime+.12);
+ }catch(e){}
 }
 
-function randomCandy(){return Math.floor(Math.random()*6)}
+function toggleSound(){
+ soundOn=!soundOn;
+ document.querySelector('[onclick="toggleSound()"]').textContent=
+ soundOn?"🔊 Sound ON":"🔇 Sound OFF";
+}
+
+function randomCandy(){
+ return Math.floor(Math.random()*emojis.length);
+}
 
 function matches(){
-let found=new Set();
-for(let r=0;r<8;r++){
-for(let c=0;c<8;c++){
-let i=r*8+c,v=board[i];
-if(v<0)continue;
-if(c<6&&v===board[i+1]&&v===board[i+2]){
-let j=c;
-while(j<8&&board[r*8+j]===v){found.add(r*8+j);j++}
-}
-if(r<6&&v===board[i+8]&&v===board[i+16]){
-let j=r;
-while(j<8&&board[j*8+c]===v){found.add(j*8+c);j++}
-}
-}}
-return [...found];
+ let found=new Set();
+
+ for(let r=0;r<8;r++){
+  for(let c=0;c<8;c++){
+   let i=r*8+c;
+   let v=board[i];
+   if(v<0)continue;
+
+   if(c<6&&v===board[i+1]&&v===board[i+2]){
+    let j=c;
+    while(j<8&&board[r*8+j]===v){
+     found.add(r*8+j);
+     j++;
+    }
+   }
+
+   if(r<6&&v===board[i+8]&&v===board[i+16]){
+    let j=r;
+    while(j<8&&board[j*8+c]===v){
+     found.add(j*8+c);
+     j++;
+    }
+   }
+  }
+ }
+
+ return [...found];
 }
 
 function makeBoard(){
-board=Array.from({length:64},randomCandy);
-let m=matches();
-while(m.length){
-m.forEach(i=>board[i]=randomCandy());
-m=matches();
-}
+ let attempts=0;
+ do{
+  board=Array.from({length:64},randomCandy);
+  attempts++;
+ }while(matches().length&&attempts<100);
 }
 
 function draw(){
-document.getElementById("board").innerHTML=board.map((v,i)=>
-`<button class="candy ${selected===i?'selected':''}" data-i="${i}" aria-label="Candy">${v<0?'':emojis[v]}</button>`
-).join("");
-document.querySelectorAll(".candy").forEach(el=>{
-el.addEventListener("click",()=>tap(Number(el.dataset.i)));
-});
-document.getElementById("score").textContent=score;
-document.getElementById("moves").textContent=moves;
-document.getElementById("level").textContent=level;
-document.getElementById("target").textContent=target;
-document.getElementById("coins").textContent=coins;
-document.getElementById("best").textContent=best;
+ const el=document.getElementById("board");
+
+ el.innerHTML=board.map((v,i)=>
+ `<button class="candy ${selected===i?'selected':''}"
+ data-i="${i}" aria-label="Candy">
+ ${v<0?"":emojis[v]}
+ </button>`
+ ).join("");
+
+ el.querySelectorAll(".candy").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+   if(suppressClick){
+    suppressClick=false;
+    return;
+   }
+   tap(Number(btn.dataset.i));
+  });
+ });
+
+ document.getElementById("level").textContent=level;
+ document.getElementById("score").textContent=score;
+ document.getElementById("moves").textContent=moves;
+ document.getElementById("target").textContent=target;
+ document.getElementById("coins").textContent=coins;
+ document.getElementById("best").textContent=best;
+}
+
+function adjacent(a,b){
+ return Math.abs(a-b)===1&&
+ Math.floor(a/8)===Math.floor(b/8) ||
+ Math.abs(a-b)===8;
+}
+
+function swap(a,b){
+ [board[a],board[b]]=[board[b],board[a]];
 }
 
 function tap(i){
-if(busy||gameOver)return;
-if(selected===-1){selected=i;draw();return}
-if(selected===i){selected=-1;draw();return}
-let a=selected,b=i;
-selected=-1;
-if(Math.abs(a-b)!==1&&Math.abs(a-b)!==8){selected=i;draw();return}
-if(Math.abs(a-b)===1&&Math.floor(a/8)!==Math.floor(b/8)){selected=i;draw();return}
-busy=true;
-[board[a],board[b]]=[board[b],board[a]];
-let m=matches();
-if(!m.length){
-[board[a],board[b]]=[board[b],board[a]];
-beep(180);
-draw();busy=false;return;
-}
-moves--;
-resolve();
+ if(busy||gameOver)return;
+
+ if(selected===-1){
+  selected=i;
+  draw();
+  return;
+ }
+
+ if(selected===i){
+  selected=-1;
+  draw();
+  return;
+ }
+
+ let a=selected;
+ selected=-1;
+
+ if(!adjacent(a,i)){
+  selected=i;
+  draw();
+  return;
+ }
+
+ swap(a,i);
+
+ if(!matches().length){
+  swap(a,i);
+  beep(180);
+  draw();
+  document.getElementById("message").textContent=
+  "❌ No match! Try another move.";
+  return;
+ }
+
+ moves--;
+ busy=true;
+ resolve();
 }
 
-function resolve(){
-let m=matches();
-if(!m.length){
-busy=false;
-draw();
-checkGame();
-return;
-}
-beep(650);
-m.forEach(i=>board[i]=-1);
-score+=m.length*10;
-coins+=Math.floor(m.length/3);
-if(score>best)best=score;
-draw();
-setTimeout(()=>{
-for(let c=0;c<8;c++){
-let vals=[];
-for(let r=7;r>=0;r--){
-let v=board[r*8+c];
-if(v>=0)vals.push(v);
-}
-while(vals.length<8)vals.push(randomCandy());
-for(let r=7;r>=0;r--)board[r*8+c]=vals[7-r];
-}
-draw();
-setTimeout(resolve,160);
-},180);
+function sleep(ms){
+ return new Promise(resolve=>setTimeout(resolve,ms));
 }
 
-function checkGame(){
-save();
-if(score>=target){
-gameOver=true;
-document.getElementById("message").textContent="🎉 LEVEL COMPLETE! +50 BONUS COINS!";
-coins+=50;save();
-document.querySelector("#board").style.pointerEvents="none";
-let btn=document.createElement("button");
-btn.className="action";
-btn.textContent="NEXT LEVEL ➜";
-btn.onclick=nextLevel;
-document.querySelector(".panel").appendChild(btn);
-return;
+function gravity(){
+ for(let c=0;c<8;c++){
+  let vals=[];
+
+  for(let r=7;r>=0;r--){
+   let v=board[r*8+c];
+   if(v>=0)vals.push(v);
+  }
+
+  while(vals.length<8)vals.push(randomCandy());
+
+  for(let r=7;r>=0;r--){
+   board[r*8+c]=vals[7-r];
+  }
+ }
 }
-if(moves<=0){
-gameOver=true;
-document.getElementById("message").textContent="Game Over! Try again!";
-let btn=document.createElement("button");
-btn.className="action";
-btn.textContent="TRY AGAIN";
-btn.onclick=restart;
-document.querySelector(".panel").appendChild(btn);
-return;
+
+async function resolve(){
+ let safety=0;
+
+ while(safety<30){
+  let m=matches();
+  if(!m.length)break;
+
+  safety++;
+  beep(650);
+
+  m.forEach(i=>board[i]=-1);
+
+  score+=m.length*10;
+  coins+=Math.floor(m.length/3);
+
+  if(score>best)best=score;
+
+  draw();
+  document.querySelectorAll(".candy").forEach(btn=>{
+   if(btn.textContent.trim()==="")btn.classList.add("pop");
+  });
+
+  await sleep(250);
+  gravity();
+  draw();
+  await sleep(180);
+ }
+
+ busy=false;
+ save();
+ finishMove();
 }
-document.getElementById("message").textContent="Great! Keep matching! 🍬";
+
+function finishMove(){
+ draw();
+
+ if(score>=target){
+  completeLevel();
+  return;
+ }
+
+ if(moves<=0){
+  gameOver=true;
+  showPopup("😢 GAME OVER","Your score: "+score+
+  ". Try again and beat your best score!","TRY AGAIN",restart);
+  return;
+ }
+
+ document.getElementById("message").textContent=
+ "✨ Great! Keep matching candies!";
+}
+
+function showPopup(title,message,button,action){
+ document.getElementById("popupTitle").textContent=title;
+ document.getElementById("popupText").textContent=message;
+
+ let btn=document.getElementById("popupButton");
+ btn.textContent=button;
+ btn.onclick=action;
+
+ document.getElementById("overlay").style.display="flex";
+}
+
+function completeLevel(){
+ gameOver=true;
+ coins+=50;
+ save();
+
+ if(level===100){
+  showPopup("🏆 WORLD CHAMPION!",
+  "Congratulations! You completed all 100 levels!",
+  "PLAY AGAIN",restart);
+  document.getElementById("message").textContent=
+  "🌟 YOU ARE A CANDY CHAMPION!";
+ }else{
+  showPopup("🎉 LEVEL COMPLETE!",
+  "Amazing! +50 Bonus Coins. Your score: "+score,
+  "NEXT LEVEL ➜",nextLevel);
+  document.getElementById("message").textContent=
+  "🎉 Congratulations! Level completed!";
+ }
+
+ draw();
 }
 
 function nextLevel(){
-level=Math.min(100,level+1);
-score=0;moves=30;target=500+(level-1)*100;
-gameOver=false;
-document.querySelectorAll(".panel .action").forEach((b,i)=>{if(i>2)b.remove()});
-document.querySelector("#board").style.pointerEvents="auto";
-makeBoard();save();draw();
-document.getElementById("message").textContent="Welcome to Level "+level+"!";
+ if(level>=100)return;
+
+ level++;
+ score=0;
+ moves=30;
+ target=500+(level-1)*100;
+ selected=-1;
+ gameOver=false;
+
+ document.getElementById("overlay").style.display="none";
+ document.getElementById("board").style.pointerEvents="auto";
+ makeBoard();
+ draw();
+ save();
+
+ document.getElementById("message").textContent=
+ "🍭 Welcome to Level "+level+"!";
 }
 
 function restart(){
-score=0;moves=30;gameOver=false;selected=-1;
-document.querySelectorAll(".panel .action").forEach((b,i)=>{if(i>2)b.remove()});
-document.querySelector("#board").style.pointerEvents="auto";
-makeBoard();draw();
-document.getElementById("message").textContent="New game! Good luck!";
+ score=0;
+ moves=30;
+ selected=-1;
+ gameOver=false;
+ busy=false;
+ target=500+(level-1)*100;
+
+ document.getElementById("overlay").style.display="none";
+ document.getElementById("board").style.pointerEvents="auto";
+
+ makeBoard();
+ draw();
+
+ document.getElementById("message").textContent=
+ "🍬 New game! Good luck!";
 }
 
 function hint(){
-if(busy||gameOver)return;
-for(let i=0;i<64;i++){
-for(let j of [i+1,i+8]){
-if(j>=64||(j===i+1&&Math.floor(i/8)!==Math.floor(j/8)))continue;
-[board[i],board[j]]=[board[j],board[i]];
-let m=matches();
-[board[i],board[j]]=[board[j],board[i]];
-if(m.length){selected=i;draw();document.getElementById("message").textContent="Try the highlighted candy!";return}
-}}
-document.getElementById("message").textContent="No easy match found. Try another move!";
+ if(busy||gameOver)return;
+
+ for(let i=0;i<64;i++){
+  for(let j of [i+1,i+8]){
+   if(j>=64||(j===i+1&&Math.floor(i/8)!==Math.floor(j/8)))continue;
+
+   swap(i,j);
+   let m=matches();
+   swap(i,j);
+
+   if(m.length){
+    selected=i;
+    draw();
+    document.getElementById("message").textContent=
+    "💡 Try the highlighted candy!";
+    return;
+   }
+  }
+ }
+
+ document.getElementById("message").textContent=
+ "Try another move!";
 }
 
-function useBooster(){
-if(busy||gameOver)return;
-if(coins<20){document.getElementById("message").textContent="Need 20 coins for booster!";return}
-coins-=20;
-let i=Math.floor(Math.random()*64);
-board[i]=randomCandy();
-score+=30;
-moves=Math.max(0,moves-1);
-beep(800);draw();checkGame();save();
+async function useBooster(){
+ if(busy||gameOver)return;
+
+ if(coins<20){
+  document.getElementById("message").textContent=
+  "Need 20 coins for Booster!";
+  return;
+ }
+
+ coins-=20;
+ moves--;
+ busy=true;
+
+ let center=Math.floor(Math.random()*64);
+ let row=Math.floor(center/8);
+ let col=center%8;
+
+ for(let r=Math.max(0,row-1);r<=Math.min(7,row+1);r++){
+  for(let c=Math.max(0,col-1);c<=Math.min(7,col+1);c++){
+   board[r*8+c]=-1;
+  }
+ }
+
+ score+=30;
+ beep(850);
+ gravity();
+ draw();
+ await sleep(250);
+
+ await resolve();
+ save();
 }
 
-makeBoard();
+// Mobile swipe support
+
+let startX=0;
+let startY=0;
+let startIndex=-1;
+
+const boardElement=document.getElementById("board");
+
+boardElement.addEventListener("pointerdown",e=>{
+ let cell=e.target.closest(".candy");
+ if(!cell)return;
+
+ startIndex=Number(cell.dataset.i);
+ startX=e.clientX;
+ startY=e.clientY;
+});
+
+boardElement.addEventListener("pointerup",e=>{
+ if(startIndex<0)return;
+
+ let dx=e.clientX-startX;
+ let dy=e.clientY-startY;
+
+ if(Math.max(Math.abs(dx),Math.abs(dy))<25){
+  startIndex=-1;
+  return;
+ }
+
+ let direction;
+
+ if(Math.abs(dx)>Math.abs(dy)){
+  direction=dx>0?1:-1;
+ }else{
+  direction=dy>0?8:-8;
+ }
+
+ let destination=startIndex+direction;
+
+ if(destination>=0&&destination<64&&adjacent(startIndex,destination)){
+  suppressClick=true;
+  selected=startIndex;
+  draw();
+  tap(destination);
+ }
+
+ startIndex=-1;
+});
+
+boardElement.addEventListener("pointercancel",()=>{
+ startIndex=-1;
+});
+
 target=500+(level-1)*100;
+makeBoard();
 draw();
+
 </script>
 </body>
 </html>
